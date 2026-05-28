@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<!-- saved from url=(0049)file:///C:/Users/nondl/Downloads/rerand_tool.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rerandomization in Randomised Experiments</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./Rerandomization in Randomised Experiments_files/css2" rel="stylesheet">
+<script src="./Rerandomization in Randomised Experiments_files/chart.umd.min.js.download"></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════════════ */
+:root {
+  --navy:   #0F204B;
+  --red:    #A71930;
+  --grey:   #8B8D8E;
+  --black:  #000000;
+  --cream:  #F5F0E8;
+  --light:  #E8E4DC;
+  --dim:    #C8C4BC;
+  --green:  #1a8c5a;
+  --green-bright: #4ade80;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--navy);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SHARED HEADER
+══════════════════════════════════════════════════════════════════ */
+.site-header {
+  background: var(--navy);
+  border-bottom: 3px solid var(--red);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.header-brand {
+  padding: 18px 0;
+  flex: 1;
+}
+.header-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 3px;
+}
+.header-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  color: #fff;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.header-title em { font-style: italic; color: rgba(255,255,255,0.6); }
+.header-ref {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.28);
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+}
+
+/* ── TAB NAV ──────────────────────────────────────────────────── */
+.tab-nav {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-left: 32px;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 0 28px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -3px;   /* sit on top of header border-bottom */
+  transition: all 0.2s;
+  position: relative;
+}
+.tab-btn:hover { background: rgba(255,255,255,0.05); }
+
+.tab-btn.active {
+  background: rgba(255,255,255,0.06);
+  border-bottom-color: var(--red);
+}
+
+.tab-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+.tab-btn.active .tab-num { color: var(--red); }
+
+.tab-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  white-space: nowrap;
+}
+.tab-btn.active .tab-label { color: #fff; }
+
+.tab-divider {
+  width: 1px;
+  background: rgba(255,255,255,0.08);
+  align-self: stretch;
+  margin: 12px 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SECTION VISIBILITY
+══════════════════════════════════════════════════════════════════ */
+.section { display: none; }
+.section.active { display: block; }
+
+/* ══════════════════════════════════════════════════════════════════
+   ── SECTION 1: FLOWCHART ──────────────────────────────────────
+══════════════════════════════════════════════════════════════════ */
+.s1-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 80px);
+}
+
+/* sidebar */
+.s1-aside {
+  background: var(--navy);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--grey);
+  margin-bottom: 10px;
+}
+
+.slider-wrap label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.slider-wrap label span {
+  font-family: 'DM Mono', monospace;
+  color: var(--red);
+  font-size: 0.85rem;
+}
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--red);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.pa-display {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--grey);
+  font-family: 'DM Mono', monospace;
+}
+.pa-display strong { color: #fff; }
+
+.speed-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.speed-btn {
+  flex: 1;
+  padding: 6px 4px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: transparent;
+  color: var(--grey);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+}
+.speed-btn.active, .speed-btn:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.stat-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 12px 10px;
+  text-align: center;
+}
+.stat-box .val {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+}
+.stat-box .lbl {
+  font-size: 0.62rem;
+  color: var(--grey);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+.stat-box.s-accent .val { color: var(--red); }
+.stat-box.s-green  .val { color: var(--green-bright); }
+
+#startBtn {
+  width: 100%;
+  padding: 14px;
+  background: var(--red);
+  border: none;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+#startBtn:hover { background: #c41f35; transform: translateY(-1px); }
+#startBtn:active { transform: translateY(0); }
+#startBtn:disabled { background: var(--grey); cursor: not-allowed; transform: none; }
+#startBtn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+#resetBtn {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--grey);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: -16px;
+}
+#resetBtn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+
+.status-bar {
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 0.76rem;
+  color: var(--grey);
+  font-family: 'DM Mono', monospace;
+  min-height: 36px;
+  line-height: 1.4;
+}
+.status-bar.active  { color: #fff; }
+.status-bar.success { color: var(--green-bright); }
+.status-bar.reject  { color: var(--red); }
+
+.s1-main {
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 30px;
+  position: relative;
+  overflow: hidden;
+}
+.s1-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(15,32,75,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,32,75,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.s1-main::after {
+  content: 'MORGAN & RUBIN 2012';
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: rgba(15,32,75,0.12);
+  letter-spacing: 0.18em;
+  pointer-events: none;
+}
+
+#flowSvg {
+  width: 100%;
+  max-width: 680px;
+  height: auto;
+  filter: drop-shadow(0 8px 32px rgba(15,32,75,0.1));
+}
+
+.node-rect {
+  fill: #fff;
+  stroke: var(--navy);
+  stroke-width: 2;
+  transition: fill 0.3s, stroke 0.3s;
+}
+.node-rect.active { fill: var(--navy); stroke: var(--navy); }
+.node-rect.done   { fill: #fff; stroke: #4ade80; stroke-width: 2.5; }
+
+.node-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  fill: var(--navy);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  transition: fill 0.3s;
+}
+.node-text.active { fill: #fff; }
+
+.diamond { fill: #fff; stroke: var(--navy); stroke-width: 2; transition: fill 0.3s, stroke 0.3s; }
+.diamond.active       { fill: var(--navy); }
+.diamond.reject-flash { fill: var(--red); stroke: var(--red); }
+.diamond.accept-flash { fill: #166534; stroke: #166534; }
+
+.arrow { stroke: var(--navy); stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+.arrow-label { font-family: 'DM Mono', monospace; font-size: 10px; fill: var(--grey); letter-spacing: 0.05em; }
+
+#token { r: 10; fill: var(--red); filter: drop-shadow(0 0 8px rgba(167,25,48,0.7)); transition: opacity 0.3s; }
+#token.success { fill: #22c55e; filter: drop-shadow(0 0 8px rgba(34,197,94,0.7)); }
+
+.step-num { font-family: 'DM Mono', monospace; font-size: 9px; fill: var(--grey); text-anchor: middle; dominant-baseline: middle; }
+
+.attempt-log { margin-top: auto; }
+.log-list {
+  max-height: 100px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  padding-right: 4px;
+}
+.log-list::-webkit-scrollbar { width: 3px; }
+.log-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+.log-entry {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem;
+  padding: 3px 7px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  justify-content: space-between;
+}
+.log-entry.rej { color: var(--red); }
+.log-entry.acc { color: var(--green-bright); }
+
+/* ══════════════════════════════════════════════════════════════════
+   ── SECTION 2: HISTOGRAM ──────────────────────────────────────
+══════════════════════════════════════════════════════════════════ */
+.s2-body {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 80px);
+  align-items: start;
+}
+
+.s2-aside {
+  background: var(--navy);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-height: calc(100vh - 80px);
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Hist buttons */
+.hist-btn {
+  width: 100%;
+  padding: 13px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  transition: all 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+.hist-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.1);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.hist-btn:hover::after { opacity: 1; }
+.hist-btn:active { transform: translateY(1px); }
+.hist-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.hist-btn:disabled::after { display: none; }
+
+.hist-btn-blue {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+}
+.hist-btn-blue:hover:not(:disabled) {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.4);
+}
+
+.hist-btn-red {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+.hist-btn-red:hover:not(:disabled) { background: #c21e36; }
+
+/* diff stat */
+.diff-block {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+.diff-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--grey);
+  margin-bottom: 4px;
+}
+.diff-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.diff-value.neutral { color: #fff; }
+.diff-value.good    { color: var(--green-bright); }
+.diff-value.bad     { color: var(--red); }
+
+.mean-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mean-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 7px 12px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.mean-chip-t {
+  background: rgba(167,25,48,0.18);
+  color: #f4879a;
+  border: 1px solid rgba(167,25,48,0.4);
+}
+.mean-chip-c {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.hist-status {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--grey);
+  min-height: 52px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid rgba(255,255,255,0.1);
+  border-radius: 0 3px 3px 0;
+  transition: border-color 0.3s;
+}
+.hist-status.success { border-color: var(--green-bright); color: var(--green-bright); }
+.hist-status.info    { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.65); }
+
+/* legend */
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 6px;
+}
+.legend-swatch {
+  width: 28px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+.ls-t { background: rgba(167,25,48,0.55); border: 2px solid var(--red); }
+.ls-c { background: rgba(15,32,75,0.7);   border: 2px solid rgba(255,255,255,0.3); }
+.ls-o {
+  background: linear-gradient(135deg, rgba(167,25,48,0.55) 0%, rgba(100,100,180,0.55) 100%);
+  border: 2px solid rgba(200,180,220,0.5);
+}
+
+/* chart area */
+.s2-main {
+  background: var(--cream);
+  padding: 36px 36px 28px;
+  position: relative;
+}
+.s2-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(15,32,75,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,32,75,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.chart-header { position: relative; z-index: 1; margin-bottom: 20px; }
+.chart-title-txt {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  color: var(--navy);
+  letter-spacing: -0.02em;
+  margin-bottom: 3px;
+}
+.chart-sub-txt {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--grey);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.chart-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  min-height: 260px;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid var(--light);
+  border-radius: 4px;
+  padding: 16px 16px 12px;
+}
+
+.chart-intro-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245,240,232,0.92);
+  border-radius: 4px;
+  z-index: 10;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.chart-intro-overlay.hidden { opacity: 0; pointer-events: none; }
+.chart-intro-icon { font-size: 32px; opacity: 0.25; margin-bottom: 10px; }
+.chart-intro-txt {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--grey);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.spinner-inline {
+  display: inline-block;
+  width: 11px; height: 11px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: rgba(255,255,255,0.7);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── SECTION TRANSITION CONNECTOR ─────────────────────────────── */
+.section-bridge {
+  background: var(--navy);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.bridge-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+.bridge-arrow {
+  font-size: 14px;
+  color: var(--red);
+  opacity: 0.6;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+.site-footer {
+  background: var(--navy);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 16px 32px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.1em;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 780px) {
+  .s1-layout, .s2-body { grid-template-columns: 1fr; }
+  .s1-aside, .s2-aside { min-height: auto; }
+  .site-header-inner { flex-wrap: wrap; gap: 0; }
+  .tab-nav { margin-left: 0; border-top: 1px solid rgba(255,255,255,0.08); width: 100%; }
+  .tab-btn { flex: 1; padding: 10px 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SHARED HEADER
+══════════════════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="header-brand">
+      <p class="header-eyebrow">Interactive Procedure · Morgan &amp; Rubin (2012)</p>
+      <h1 class="header-title">Rerandomization <em>in</em> Randomised Experiments</h1>
+      <p class="header-ref">Ann. Statist. 40(2):1263–1282 &nbsp;·&nbsp; N = 300 UNITS &nbsp;·&nbsp; k = 5 COVARIATES</p>
+    </div>
+    <nav class="tab-nav">
+      <div class="tab-divider"></div>
+      <button class="tab-btn" onclick="showSection(&#39;s1&#39;, this)">
+        <span class="tab-num">01</span>
+        <span class="tab-label">Procedure</span>
+      </button>
+      <div class="tab-divider"></div>
+      <button class="tab-btn active" onclick="showSection(&#39;s2&#39;, this)">
+        <span class="tab-num">02</span>
+        <span class="tab-label">Balance Demo</span>
+      </button>
+      <div class="tab-divider"></div>
+    </nav>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     SECTION 1 — FLOWCHART PROCEDURE
+══════════════════════════════════════════════════════════════════ -->
+<section id="s1" class="section">
+  <div class="s1-layout">
+
+    <!-- sidebar -->
+    <aside class="s1-aside">
+
+      <div>
+        <div class="section-label">Controls</div>
+
+        <div class="slider-wrap" style="margin-bottom:20px">
+          <label>
+            Threshold <em>a</em> (Mahalanobis)
+            <span id="threshVal">2.13</span>
+          </label>
+          <input type="range" id="threshSlider" min="0" max="100" value="50">
+          <div class="pa-display">
+            Acceptance prob. <strong id="paVal"><strong style="color:#4ade80">16.7%</strong></strong>
+            &nbsp;·&nbsp; k = 5 covariates
+          </div>
+        </div>
+
+        <div class="slider-wrap">
+          <div class="section-label" style="margin-bottom:8px;">Animation Speed</div>
+          <div class="speed-btns">
+            <button class="speed-btn" data-speed="800">Slow</button>
+            <button class="speed-btn" data-speed="360">Normal</button>
+            <button class="speed-btn active" data-speed="140">Fast</button>
+            <button class="speed-btn" data-speed="30">Turbo</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Live Statistics</div>
+        <div class="stat-grid">
+          <div class="stat-box s-accent">
+            <div class="val" id="statAttempts">4</div>
+            <div class="lbl">Attempts</div>
+          </div>
+          <div class="stat-box">
+            <div class="val" id="statRejected">2</div>
+            <div class="lbl">Rejected</div>
+          </div>
+          <div class="stat-box s-green">
+            <div class="val" id="statAccepted">2</div>
+            <div class="lbl">Accepted</div>
+          </div>
+          <div class="stat-box">
+            <div class="val" id="statRuns">2</div>
+            <div class="lbl">Runs</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Status</div>
+        <div class="status-bar success" id="statusBar">Run 2 complete — 2 rejected, accepted on attempt 4.</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button id="startBtn">Select Vast Data Pool &amp; Start</button>
+        <button id="resetBtn">↺ Reset</button>
+      </div>
+
+      <div class="attempt-log">
+        <div class="section-label">Allocation Log</div>
+        <div class="log-list" id="logList"><div class="log-entry acc">#004 ACCEPTED ✓</div><div class="log-entry rej">#003 REJECTED</div><div class="log-entry rej">#002 REJECTED</div><div class="log-entry acc">#001 ACCEPTED ✓</div></div>
+      </div>
+
+    </aside>
+
+    <!-- flowchart -->
+    <main class="s1-main">
+      <svg id="flowSvg" viewBox="0 0 620 760" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#0F204B"></polygon>
+          </marker>
+          <marker id="arrowhead-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#A71930"></polygon>
+          </marker>
+        </defs>
+
+        <!-- Step 1 -->
+        <rect id="n1" class="node-rect" x="170" y="40" width="280" height="64" rx="6"></rect>
+        <text class="node-text" id="n1t" x="310" y="65">Collect covariate data</text>
+        <text class="node-text" id="n1t2" x="310" y="83" style="font-size:10px;fill:#8B8D8E;">Step 1</text>
+
+        <line class="arrow" x1="310" y1="104" x2="310" y2="164"></line>
+
+        <!-- Step 2 -->
+        <rect id="n2" class="node-rect" x="170" y="164" width="280" height="64" rx="6"></rect>
+        <text class="node-text" id="n2t" x="310" y="189">(Re)randomize units</text>
+        <text class="node-text" id="n2t2" x="310" y="207" style="font-size:10px;fill:#8B8D8E;">Step 2</text>
+
+        <line class="arrow" x1="310" y1="228" x2="310" y2="284"></line>
+
+        <!-- Step 3 decision -->
+        <polygon id="n3" class="diamond" points="310,284 450,340 310,396 170,340"></polygon>
+        <text class="node-text" id="n3t" x="310" y="334" style="font-size:12px;">Acceptable covariate</text>
+        <text class="node-text" id="n3t2" x="310" y="351" style="font-size:12px;">balance?</text>
+
+        <!-- Yes path -->
+        <path id="arrowYes" class="arrow" d="M450,340 L540,340 L540,480 L450,480"></path>
+        <text class="arrow-label" x="462" y="330" style="fill:#166534;font-weight:600;">Yes</text>
+
+        <!-- No path -->
+        <path class="arrow" d="M170,340 L80,340 L80,196 L170,196" style="stroke:#A71930;" marker-end="url(#arrowhead-red)"></path>
+        <text class="arrow-label" x="84" y="330" style="fill:#A71930;font-weight:600;">No</text>
+        <text class="arrow-label" x="44" y="260" transform="rotate(-90,44,260)" style="font-size:9px;fill:#A71930;letter-spacing:0.08em;">RERANDOMIZE</text>
+
+        <!-- Step 4 -->
+        <rect id="n4" class="node-rect done" x="170" y="448" width="280" height="64" rx="6"></rect>
+        <text class="node-text" id="n4t" x="310" y="473">Conduct experiment</text>
+        <text class="node-text" id="n4t2" x="310" y="491" style="font-size:10px;fill:#8B8D8E;">Step 4</text>
+
+        <line class="arrow" x1="310" y1="512" x2="310" y2="572"></line>
+
+        <!-- Step 5 -->
+        <rect id="n5" class="node-rect done" x="130" y="572" width="360" height="64" rx="6"></rect>
+        <text class="node-text" id="n5t" x="310" y="597">Analyse (with a</text>
+        <text class="node-text" id="n5t2" x="310" y="614">randomisation test)</text>
+
+        <!-- Step badges -->
+        <circle cx="165" cy="40" r="10" fill="#0F204B" opacity="0.7"></circle>
+        <text class="step-num" x="165" y="40" fill="#fff">1</text>
+        <circle cx="165" cy="164" r="10" fill="#0F204B" opacity="0.7"></circle>
+        <text class="step-num" x="165" y="164" fill="#fff">2</text>
+        <circle cx="165" cy="448" r="10" fill="#0F204B" opacity="0.7"></circle>
+        <text class="step-num" x="165" y="448" fill="#fff">4</text>
+        <circle cx="125" cy="572" r="10" fill="#0F204B" opacity="0.7"></circle>
+        <text class="step-num" x="125" y="572" fill="#fff">5</text>
+
+        <!-- animated token -->
+        <circle id="token" cx="310" cy="604" r="10" opacity="0" class="success"></circle>
+      </svg>
+    </main>
+
+  </div>
+</section><!-- /s1 -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     SECTION 2 — COVARIATE BALANCE HISTOGRAM
+══════════════════════════════════════════════════════════════════ -->
+<section id="s2" class="section active">
+  <div class="s2-body">
+
+    <!-- sidebar -->
+    <aside class="s2-aside">
+
+      <div>
+        <div class="section-label">Allocation Method</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+          <button id="btnRandom" class="hist-btn hist-btn-blue" onclick="runRandom()">
+            ▶&nbsp; Pure Randomisation
+          </button>
+          <button id="btnRerand" class="hist-btn hist-btn-red" onclick="runRerand()">
+            ⟳&nbsp; Rerandomize (Enforce Balance)
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Difference in Means</div>
+        <div class="diff-block">
+          <div class="diff-label">| Mean(T) − Mean(C) |</div>
+          <div id="diffValue" class="diff-value bad">4.457</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Group Means</div>
+        <div class="mean-row" style="margin-top:4px;">
+          <span id="meanT" class="mean-chip mean-chip-t">Treatment: 102.03</span>
+          <span id="meanC" class="mean-chip mean-chip-c">Control:   97.57</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Status</div>
+        <div id="histStatus" class="hist-status ">Pure randomisation complete.<br>Difference in means: <strong>4.457</strong>.<br>No balance criterion enforced — some imbalance is expected.</div>
+      </div>
+
+      <div>
+        <div class="section-label">Legend</div>
+        <div style="margin-top:6px;">
+          <div class="legend-row"><div class="legend-swatch ls-t"></div> Treatment (n=150)</div>
+          <div class="legend-row"><div class="legend-swatch ls-c"></div> Control (n=150)</div>
+          <div class="legend-row"><div class="legend-swatch ls-o"></div> Overlap region</div>
+        </div>
+      </div>
+
+      <div style="margin-top:auto;">
+        <div class="section-label" style="margin-bottom:6px;">Dataset</div>
+        <div style="font-family:&#39;DM Mono&#39;,monospace;font-size:10px;color:rgba(255,255,255,0.3);line-height:1.7;">
+          N = 300 units<br>
+          μ = 100 &nbsp;·&nbsp; σ = 15<br>
+          Balance threshold: |Δ| &lt; 0.5<br>
+          Normal approx. (Box–Muller)
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- chart -->
+    <div class="s2-main">
+      <div class="chart-header">
+        <h2 class="chart-title-txt">Covariate Score Distribution</h2>
+        <p class="chart-sub-txt">Histogram — bin width 5 · semi-transparent bars reveal distributional overlap</p>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-intro-overlay hidden" id="chartIntro">
+          <div class="chart-intro-icon">📊</div>
+          <p class="chart-intro-txt">Awaiting allocation…</p>
+        </div>
+        <canvas id="myChart" height="602" style="display: block; box-sizing: border-box; height: 481px; width: 963px;" width="1203"></canvas>
+      </div>
+    </div>
+
+  </div>
+</section><!-- /s2 -->
+
+
+<!-- footer -->
+<footer class="site-footer">
+  <span>Rerandomization · Morgan &amp; Rubin (2012) · Ann. Statist. 40(2):1263–1282</span>
+  <span>Synthetic data · All computation in-browser · No data transmitted</span>
+</footer>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════════════ -->
+<script>
+/* ── TAB NAVIGATION ──────────────────────────────────── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════
+   SECTION 1 — FLOWCHART LOGIC
+══════════════════════════════════════════════════════ */
+const NODES = {
+  n1: { x:310, y:72  },
+  n2: { x:310, y:196 },
+  n3: { x:310, y:340 },
+  n4: { x:310, y:480 },
+  n5: { x:310, y:604 },
+};
+
+function sliderToPa(v) { return 0.05 + (v/100)*0.90; }
+
+function chiSqQuantile(p, k) {
+  if(p<=0.001) return 0.2; if(p>=0.999) return 30;
+  const z = normQuantile(p);
+  const h = 1 - (2/(9*k)) + z*Math.sqrt(2/(9*k));
+  return k*h*h*h;
+}
+function normQuantile(p) {
+  p = Math.max(1e-9, Math.min(1-1e-9, p));
+  const a=[ 2.50662823884,-18.61500062529,41.39119773534,-25.44106049637];
+  const b=[-8.47351093090, 23.08336743743,-21.06224101826,  3.13082909833];
+  const c=[0.3374754822726147,0.9761690190917186,0.1607979714918209,0.0276438810333863,
+           0.0038405729373609,0.0003951896511349,0.0000321767881768,0.0000002888167364,0.0000003960315187];
+  const q = p-0.5;
+  if(Math.abs(q)<0.42){
+    const r=q*q;
+    return q*(((a[3]*r+a[2])*r+a[1])*r+a[0])/((((b[3]*r+b[2])*r+b[1])*r+b[0])*r+1);
+  }
+  const r=q<0?p:1-p, s=Math.log(-Math.log(r));
+  let t=c[0]; for(let i=1;i<9;i++) t+=c[i]*Math.pow(s,i);
+  return q<0?-t:t;
+}
+
+let running=false, stopFlag=false, simSpeed=360;
+let attempts=0, rejected=0, accepted=0, runs=0, logEntries=[];
+
+const startBtn    = document.getElementById('startBtn');
+const resetBtn    = document.getElementById('resetBtn');
+const threshSlider= document.getElementById('threshSlider');
+const threshVal   = document.getElementById('threshVal');
+const paVal       = document.getElementById('paVal');
+const statusBar   = document.getElementById('statusBar');
+const logList     = document.getElementById('logList');
+const token       = document.getElementById('token');
+const statAttempts= document.getElementById('statAttempts');
+const statRejected= document.getElementById('statRejected');
+const statAccepted= document.getElementById('statAccepted');
+const statRuns    = document.getElementById('statRuns');
+
+const nodeEls = {
+  n1:{ rect:document.getElementById('n1'), texts:['n1t','n1t2'].map(id=>document.getElementById(id)) },
+  n2:{ rect:document.getElementById('n2'), texts:['n2t','n2t2'].map(id=>document.getElementById(id)) },
+  n3:{ rect:document.getElementById('n3'), texts:['n3t','n3t2'].map(id=>document.getElementById(id)) },
+  n4:{ rect:document.getElementById('n4'), texts:['n4t','n4t2'].map(id=>document.getElementById(id)) },
+  n5:{ rect:document.getElementById('n5'), texts:['n5t','n5t2'].map(id=>document.getElementById(id)) },
+};
+
+function updateSliderDisplay(){
+  const v=parseInt(threshSlider.value), pa=sliderToPa(v);
+  const a=chiSqQuantile(pa,5);
+  threshVal.textContent=a.toFixed(2);
+  paVal.innerHTML=`<strong style="color:#4ade80">${(pa*100).toFixed(1)}%</strong>`;
+}
+threshSlider.addEventListener('input', updateSliderDisplay);
+updateSliderDisplay();
+
+document.querySelectorAll('.speed-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    simSpeed=parseInt(btn.dataset.speed);
+  });
+});
+
+function sleep(ms){ return new Promise(res=>setTimeout(res,ms)); }
+
+function setTokenPos(x,y,opacity=1){
+  token.setAttribute('cx',x); token.setAttribute('cy',y); token.setAttribute('opacity',opacity);
+}
+
+async function animatePath(waypoints, durationEach){
+  if(stopFlag) return;
+  for(let i=0;i<waypoints.length-1;i++){
+    if(stopFlag) return;
+    const [x0,y0]=waypoints[i], [x1,y1]=waypoints[i+1];
+    const steps=Math.max(2,Math.round(durationEach/16));
+    for(let s=1;s<=steps;s++){
+      if(stopFlag) return;
+      const t=s/steps;
+      setTokenPos(x0+(x1-x0)*t, y0+(y1-y0)*t);
+      await sleep(durationEach/steps);
+    }
+  }
+}
+
+function activateNode(id){
+  const el=nodeEls[id]; if(!el) return;
+  el.rect.classList.remove('done'); el.rect.classList.add('active');
+  el.texts.forEach(t=>t.classList.add('active'));
+}
+function deactivateNode(id){
+  const el=nodeEls[id]; if(!el) return;
+  el.rect.classList.remove('active','reject-flash','accept-flash');
+  el.texts.forEach(t=>t.classList.remove('active'));
+}
+function doneNode(id){ deactivateNode(id); nodeEls[id]?.rect.classList.add('done'); }
+function deactivateAll(){ Object.keys(nodeEls).forEach(id=>deactivateNode(id)); }
+function setStatus(msg,cls='active'){ statusBar.className='status-bar '+cls; statusBar.textContent=msg; }
+function updateStats(){ statAttempts.textContent=attempts; statRejected.textContent=rejected; statAccepted.textContent=accepted; statRuns.textContent=runs; }
+function addLog(type,msg){ logEntries.unshift({type,msg}); if(logEntries.length>40) logEntries.pop(); renderLog(); }
+function renderLog(){ logList.innerHTML=logEntries.slice(0,20).map(e=>`<div class="log-entry ${e.type}">${e.msg}</div>`).join(''); }
+
+async function runSimulation(){
+  if(running) return;
+  running=true; stopFlag=false; runs++;
+  startBtn.disabled=true;
+  deactivateAll();
+  token.classList.remove('success');
+  const pa=sliderToPa(parseInt(threshSlider.value));
+  const segDur=simSpeed;
+  setStatus('Collecting covariate data…');
+
+  if(stopFlag) return cleanup();
+  activateNode('n1');
+  setTokenPos(NODES.n1.x, NODES.n1.y, 1);
+  await sleep(segDur*1.2);
+  deactivateNode('n1');
+  if(stopFlag) return cleanup();
+  await animatePath([[310,104],[310,164]], segDur*0.6);
+
+  while(true){
+    if(stopFlag) return cleanup();
+    activateNode('n2');
+    setStatus(`Attempt #${attempts+1}: randomising units…`);
+    await sleep(segDur);
+    deactivateNode('n2');
+    if(stopFlag) return cleanup();
+    await animatePath([[310,228],[310,284]], segDur*0.6);
+    if(stopFlag) return cleanup();
+    activateNode('n3');
+    attempts++; updateStats();
+    setStatus(`Checking Mahalanobis balance (M vs a)…`);
+    await sleep(segDur*1.1);
+    const accept=Math.random()<pa;
+    if(!accept){
+      nodeEls.n3.rect.classList.add('reject-flash');
+      rejected++; updateStats();
+      setStatus(`Attempt ${attempts}: REJECTED — rerandomising`,'reject');
+      addLog('rej',`#${attempts.toString().padStart(3,'0')} REJECTED`);
+      await sleep(segDur*0.8);
+      deactivateNode('n3');
+      await animatePath([[310,340],[170,340],[80,340],[80,196],[170,196]], segDur*0.45);
+      continue;
+    }
+    nodeEls.n3.rect.classList.add('accept-flash');
+    accepted++; updateStats();
+    setStatus(`Attempt ${attempts}: ACCEPTED — proceeding`,'success');
+    addLog('acc',`#${attempts.toString().padStart(3,'0')} ACCEPTED ✓`);
+    await sleep(segDur);
+    deactivateNode('n3');
+    break;
+  }
+
+  if(stopFlag) return cleanup();
+  await animatePath([[310,340],[450,340],[540,340],[540,480],[450,480]], segDur*0.55);
+  if(stopFlag) return cleanup();
+  activateNode('n4');
+  setStatus('Conducting experiment with accepted allocation…');
+  await sleep(segDur*1.5);
+  doneNode('n4');
+  if(stopFlag) return cleanup();
+  await animatePath([[310,512],[310,572]], segDur*0.6);
+  if(stopFlag) return cleanup();
+  activateNode('n5');
+  token.classList.add('success');
+  setTokenPos(NODES.n5.x, NODES.n5.y);
+  setStatus(`Complete! ${attempts} attempt(s), ${rejected} rejected before acceptance.`,'success');
+  await sleep(segDur*2);
+  doneNode('n5');
+  await sleep(400);
+  token.setAttribute('opacity',0);
+  setStatus(`Run ${runs} complete — ${rejected} rejected, accepted on attempt ${attempts}.`,'success');
+  cleanup();
+}
+
+function cleanup(){ running=false; stopFlag=false; startBtn.disabled=false; }
+
+function doReset(){
+  stopFlag=true;
+  setTimeout(()=>{
+    running=false; attempts=0; rejected=0; accepted=0; runs=0;
+    logEntries=[]; renderLog(); updateStats(); deactivateAll();
+    token.setAttribute('opacity',0); token.classList.remove('success');
+    setStatus('Awaiting start…');
+    startBtn.disabled=false; stopFlag=false;
+  },80);
+}
+
+startBtn.addEventListener('click', runSimulation);
+resetBtn.addEventListener('click', doReset);
+updateStats();
+
+
+/* ══════════════════════════════════════════════════════
+   SECTION 2 — HISTOGRAM LOGIC
+══════════════════════════════════════════════════════ */
+const POP_N    = 300;
+const POP_MU   = 100;
+const POP_SIG  = 15;
+
+function randn(){
+  let u,v;
+  do{ u=Math.random(); }while(u===0);
+  do{ v=Math.random(); }while(v===0);
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+
+const population = Array.from({length:POP_N}, ()=>
+  parseFloat((POP_MU + POP_SIG*randn()).toFixed(3))
+);
+
+const BIN_MIN=50, BIN_MAX=155, BIN_W=5;
+const bins=[];
+for(let lo=BIN_MIN; lo<BIN_MAX; lo+=BIN_W) bins.push(`${lo}–${lo+BIN_W}`);
+
+function toBinCounts(arr){
+  const counts=new Array(bins.length).fill(0);
+  arr.forEach(v=>{
+    let i=Math.floor((v-BIN_MIN)/BIN_W);
+    i=Math.max(0,Math.min(bins.length-1,i));
+    counts[i]++;
+  });
+  return counts;
+}
+
+const ctx2 = document.getElementById('myChart').getContext('2d');
+const chartData = {
+  labels: bins,
+  datasets:[
+    {
+      label:'Treatment',
+      data: new Array(bins.length).fill(0),
+      backgroundColor:'rgba(167,25,48,0.52)',
+      borderColor:'rgba(167,25,48,0.9)',
+      borderWidth:1.5,
+      borderRadius:2,
+      barPercentage:1.0,
+      categoryPercentage:1.0,
+    },
+    {
+      label:'Control',
+      data: new Array(bins.length).fill(0),
+      backgroundColor:'rgba(15,32,75,0.45)',
+      borderColor:'rgba(15,32,75,0.75)',
+      borderWidth:1.5,
+      borderRadius:2,
+      barPercentage:1.0,
+      categoryPercentage:1.0,
+    }
+  ]
+};
+
+const myChart = new Chart(ctx2, {
+  type:'bar',
+  data: chartData,
+  options:{
+    responsive:true,
+    maintainAspectRatio:true,
+    animation:{ duration:480, easing:'easeOutQuart' },
+    interaction:{ mode:'index', intersect:false },
+    plugins:{
+      legend:{ display:false },
+      tooltip:{
+        backgroundColor:'#0F204B',
+        titleColor:'#fff',
+        bodyColor:'rgba(255,255,255,0.72)',
+        titleFont:{ family:"'DM Mono', monospace", size:11 },
+        bodyFont:{ family:"'DM Mono', monospace", size:11 },
+        padding:12,
+        callbacks:{
+          title: items=>`Bin: ${items[0].label}`,
+          label: item=>` ${item.dataset.label}: ${item.raw} units`,
+        }
+      }
+    },
+    scales:{
+      x:{
+        grid:{ color:'rgba(15,32,75,0.06)', drawBorder:false },
+        ticks:{ font:{family:"'DM Mono',monospace",size:9}, color:'#8B8D8E', maxRotation:45, autoSkip:true, maxTicksLimit:18 },
+        title:{ display:true, text:'COVARIATE SCORE', font:{family:"'DM Mono',monospace",size:10}, color:'#8B8D8E', padding:{top:8} }
+      },
+      y:{
+        beginAtZero:true,
+        grid:{ color:'rgba(15,32,75,0.06)', drawBorder:false },
+        ticks:{ font:{family:"'DM Mono',monospace",size:10}, color:'#8B8D8E', stepSize:5 },
+        title:{ display:true, text:'UNIT COUNT', font:{family:"'DM Mono',monospace",size:10}, color:'#8B8D8E', padding:{bottom:8} }
+      }
+    }
+  }
+});
+
+function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function splitPop(){
+  const s=shuffle(population);
+  return { treatment:s.slice(0,POP_N/2), control:s.slice(POP_N/2) };
+}
+
+function setHistButtons(disabled){
+  document.getElementById('btnRandom').disabled=disabled;
+  document.getElementById('btnRerand').disabled=disabled;
+}
+
+function updateHistChart(t,c){
+  chartData.datasets[0].data=toBinCounts(t);
+  chartData.datasets[1].data=toBinCounts(c);
+  myChart.update();
+  document.getElementById('chartIntro').classList.add('hidden');
+}
+
+function updateHistStats(t,c,diff){
+  const mT=mean(t).toFixed(2), mC=mean(c).toFixed(2), d=diff.toFixed(3);
+  const el=document.getElementById('diffValue');
+  el.textContent=d;
+  el.className='diff-value '+(diff<0.5?'good':diff<2?'neutral':'bad');
+  document.getElementById('meanT').textContent=`Treatment: ${mT}`;
+  document.getElementById('meanC').textContent=`Control:   ${mC}`;
+}
+
+function setHistStatus(html,cls=''){
+  const el=document.getElementById('histStatus');
+  el.innerHTML=html;
+  el.className='hist-status '+cls;
+}
+
+function runRandom(){
+  setHistButtons(true);
+  setHistStatus('<span class="spinner-inline"></span>Allocating randomly…','info');
+  setTimeout(()=>{
+    const {treatment,control}=splitPop();
+    const mT=mean(treatment), mC=mean(control), diff=Math.abs(mT-mC);
+    updateHistChart(treatment,control);
+    updateHistStats(treatment,control,diff);
+    setHistStatus(
+      `Pure randomisation complete.<br>Difference in means: <strong>${diff.toFixed(3)}</strong>.<br>`+
+      `No balance criterion enforced — some imbalance is expected.`,
+      diff<1?'success':''
+    );
+    setHistButtons(false);
+  }, 30);
+}
+
+function runRerand(){
+  setHistButtons(true);
+  setHistStatus('<span class="spinner-inline"></span>Searching for balanced allocation…','info');
+  setTimeout(()=>{
+    const THRESHOLD=0.5;
+    let itr=0, treatment, control, diff;
+    do {
+      ({treatment,control}=splitPop());
+      diff=Math.abs(mean(treatment)-mean(control));
+      itr++;
+    } while(diff>=THRESHOLD && itr<100000);
+    const discarded=itr-1;
+    updateHistChart(treatment,control);
+    updateHistStats(treatment,control,diff);
+    setHistStatus(
+      `✓ Balanced allocation found.<br>`+
+      `Discarded <strong>${discarded}</strong> unbalanced allocation${discarded!==1?'s':''}.<br>`+
+      `Final |Δ mean| = <strong>${diff.toFixed(3)}</strong> (threshold &lt; ${THRESHOLD}).`,
+      'success'
+    );
+    setHistButtons(false);
+  }, 30);
+}
+</script>
+
+</body></html>
