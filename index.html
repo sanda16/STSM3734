@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<!-- saved from url=(0049)file:///C:/Users/nondl/Downloads/rerand_tool.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rerandomization in Randomised Experiments</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="./Rerandomization in Randomised Experiments_files/css2" rel="stylesheet">
-<script src="./Rerandomization in Randomised Experiments_files/chart.umd.min.js.download"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
 /* ══════════════════════════════════════════════════════════════════
@@ -193,6 +192,7 @@ body {
 }
 input[type=range] {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 4px;
   background: rgba(255,255,255,0.15);
@@ -202,11 +202,19 @@ input[type=range] {
 }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 16px; height: 16px;
   border-radius: 50%;
   background: var(--red);
   cursor: pointer;
   transition: transform 0.15s;
+}
+input[type=range]::-moz-range-thumb {
+  width: 16px; height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--red);
+  cursor: pointer;
 }
 input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .pa-display {
@@ -417,6 +425,12 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 }
 .log-entry.rej { color: var(--red); }
 .log-entry.acc { color: var(--green-bright); }
+.log-empty {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem;
+  color: rgba(255,255,255,0.25);
+  padding: 3px 7px;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    ── SECTION 2: HISTOGRAM ──────────────────────────────────────
@@ -545,6 +559,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 }
 .hist-status.success { border-color: var(--green-bright); color: var(--green-bright); }
 .hist-status.info    { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.65); }
+.hist-status.error   { border-color: var(--red); color: #f4879a; }
 
 /* legend */
 .legend-row {
@@ -629,7 +644,6 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   border-radius: 4px;
   z-index: 10;
   transition: opacity 0.4s;
-  pointer-events: none;
 }
 .chart-intro-overlay.hidden { opacity: 0; pointer-events: none; }
 .chart-intro-icon { font-size: 32px; opacity: 0.25; margin-bottom: 10px; }
@@ -639,6 +653,9 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   color: var(--grey);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  text-align: center;
+  padding: 0 16px;
+  line-height: 1.7;
 }
 
 .spinner-inline {
@@ -652,29 +669,6 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   margin-right: 6px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── SECTION TRANSITION CONNECTOR ─────────────────────────────── */
-.section-bridge {
-  background: var(--navy);
-  border-top: 1px solid rgba(255,255,255,0.06);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  padding: 12px 32px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.bridge-text {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
-}
-.bridge-arrow {
-  font-size: 14px;
-  color: var(--red);
-  opacity: 0.6;
-}
 
 /* ── FOOTER ──────────────────────────────────────────────────── */
 .site-footer {
@@ -725,12 +719,12 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
     </div>
     <nav class="tab-nav">
       <div class="tab-divider"></div>
-      <button class="tab-btn" onclick="showSection(&#39;s1&#39;, this)">
+      <button class="tab-btn active" onclick="showSection('s1', this)">
         <span class="tab-num">01</span>
         <span class="tab-label">Procedure</span>
       </button>
       <div class="tab-divider"></div>
-      <button class="tab-btn active" onclick="showSection(&#39;s2&#39;, this)">
+      <button class="tab-btn" onclick="showSection('s2', this)">
         <span class="tab-num">02</span>
         <span class="tab-label">Balance Demo</span>
       </button>
@@ -743,7 +737,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 <!-- ══════════════════════════════════════════════════════════════
      SECTION 1 — FLOWCHART PROCEDURE
 ══════════════════════════════════════════════════════════════════ -->
-<section id="s1" class="section">
+<section id="s1" class="section active">
   <div class="s1-layout">
 
     <!-- sidebar -->
@@ -779,19 +773,19 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
         <div class="section-label">Live Statistics</div>
         <div class="stat-grid">
           <div class="stat-box s-accent">
-            <div class="val" id="statAttempts">4</div>
+            <div class="val" id="statAttempts">0</div>
             <div class="lbl">Attempts</div>
           </div>
           <div class="stat-box">
-            <div class="val" id="statRejected">2</div>
+            <div class="val" id="statRejected">0</div>
             <div class="lbl">Rejected</div>
           </div>
           <div class="stat-box s-green">
-            <div class="val" id="statAccepted">2</div>
+            <div class="val" id="statAccepted">0</div>
             <div class="lbl">Accepted</div>
           </div>
           <div class="stat-box">
-            <div class="val" id="statRuns">2</div>
+            <div class="val" id="statRuns">0</div>
             <div class="lbl">Runs</div>
           </div>
         </div>
@@ -799,7 +793,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
       <div>
         <div class="section-label">Status</div>
-        <div class="status-bar success" id="statusBar">Run 2 complete — 2 rejected, accepted on attempt 4.</div>
+        <div class="status-bar" id="statusBar">Awaiting start…</div>
       </div>
 
       <div style="display:flex;flex-direction:column;gap:10px;">
@@ -809,7 +803,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
       <div class="attempt-log">
         <div class="section-label">Allocation Log</div>
-        <div class="log-list" id="logList"><div class="log-entry acc">#004 ACCEPTED ✓</div><div class="log-entry rej">#003 REJECTED</div><div class="log-entry rej">#002 REJECTED</div><div class="log-entry acc">#001 ACCEPTED ✓</div></div>
+        <div class="log-list" id="logList"><div class="log-empty">No allocations yet.</div></div>
       </div>
 
     </aside>
@@ -855,14 +849,14 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
         <text class="arrow-label" x="44" y="260" transform="rotate(-90,44,260)" style="font-size:9px;fill:#A71930;letter-spacing:0.08em;">RERANDOMIZE</text>
 
         <!-- Step 4 -->
-        <rect id="n4" class="node-rect done" x="170" y="448" width="280" height="64" rx="6"></rect>
+        <rect id="n4" class="node-rect" x="170" y="448" width="280" height="64" rx="6"></rect>
         <text class="node-text" id="n4t" x="310" y="473">Conduct experiment</text>
         <text class="node-text" id="n4t2" x="310" y="491" style="font-size:10px;fill:#8B8D8E;">Step 4</text>
 
         <line class="arrow" x1="310" y1="512" x2="310" y2="572"></line>
 
         <!-- Step 5 -->
-        <rect id="n5" class="node-rect done" x="130" y="572" width="360" height="64" rx="6"></rect>
+        <rect id="n5" class="node-rect" x="130" y="572" width="360" height="64" rx="6"></rect>
         <text class="node-text" id="n5t" x="310" y="597">Analyse (with a</text>
         <text class="node-text" id="n5t2" x="310" y="614">randomisation test)</text>
 
@@ -888,7 +882,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 <!-- ══════════════════════════════════════════════════════════════
      SECTION 2 — COVARIATE BALANCE HISTOGRAM
 ══════════════════════════════════════════════════════════════════ -->
-<section id="s2" class="section active">
+<section id="s2" class="section">
   <div class="s2-body">
 
     <!-- sidebar -->
@@ -910,21 +904,21 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
         <div class="section-label">Difference in Means</div>
         <div class="diff-block">
           <div class="diff-label">| Mean(T) − Mean(C) |</div>
-          <div id="diffValue" class="diff-value bad">4.457</div>
+          <div id="diffValue" class="diff-value neutral">—</div>
         </div>
       </div>
 
       <div>
         <div class="section-label">Group Means</div>
         <div class="mean-row" style="margin-top:4px;">
-          <span id="meanT" class="mean-chip mean-chip-t">Treatment: 102.03</span>
-          <span id="meanC" class="mean-chip mean-chip-c">Control:   97.57</span>
+          <span id="meanT" class="mean-chip mean-chip-t">Treatment: —</span>
+          <span id="meanC" class="mean-chip mean-chip-c">Control: —</span>
         </div>
       </div>
 
       <div>
         <div class="section-label">Status</div>
-        <div id="histStatus" class="hist-status ">Pure randomisation complete.<br>Difference in means: <strong>4.457</strong>.<br>No balance criterion enforced — some imbalance is expected.</div>
+        <div id="histStatus" class="hist-status info">Select an allocation method to begin.</div>
       </div>
 
       <div>
@@ -938,7 +932,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
       <div style="margin-top:auto;">
         <div class="section-label" style="margin-bottom:6px;">Dataset</div>
-        <div style="font-family:&#39;DM Mono&#39;,monospace;font-size:10px;color:rgba(255,255,255,0.3);line-height:1.7;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);line-height:1.7;">
           N = 300 units<br>
           μ = 100 &nbsp;·&nbsp; σ = 15<br>
           Balance threshold: |Δ| &lt; 0.5<br>
@@ -955,11 +949,11 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
         <p class="chart-sub-txt">Histogram — bin width 5 · semi-transparent bars reveal distributional overlap</p>
       </div>
       <div class="chart-wrap">
-        <div class="chart-intro-overlay hidden" id="chartIntro">
+        <div class="chart-intro-overlay" id="chartIntro">
           <div class="chart-intro-icon">📊</div>
-          <p class="chart-intro-txt">Awaiting allocation…</p>
+          <p class="chart-intro-txt">Choose an allocation method<br>to populate the histogram</p>
         </div>
-        <canvas id="myChart" height="602" style="display: block; box-sizing: border-box; height: 481px; width: 963px;" width="1203"></canvas>
+        <canvas id="myChart"></canvas>
       </div>
     </div>
 
@@ -984,6 +978,10 @@ function showSection(id, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
+  /* Chart.js needs a resize nudge when its container becomes visible */
+  if (id === 's2' && window.myChart) {
+    setTimeout(() => window.myChart.resize(), 30);
+  }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1021,7 +1019,7 @@ function normQuantile(p) {
   return q<0?-t:t;
 }
 
-let running=false, stopFlag=false, simSpeed=360;
+let running=false, stopFlag=false, simSpeed=140;
 let attempts=0, rejected=0, accepted=0, runs=0, logEntries=[];
 
 const startBtn    = document.getElementById('startBtn');
@@ -1098,7 +1096,10 @@ function deactivateAll(){ Object.keys(nodeEls).forEach(id=>deactivateNode(id)); 
 function setStatus(msg,cls='active'){ statusBar.className='status-bar '+cls; statusBar.textContent=msg; }
 function updateStats(){ statAttempts.textContent=attempts; statRejected.textContent=rejected; statAccepted.textContent=accepted; statRuns.textContent=runs; }
 function addLog(type,msg){ logEntries.unshift({type,msg}); if(logEntries.length>40) logEntries.pop(); renderLog(); }
-function renderLog(){ logList.innerHTML=logEntries.slice(0,20).map(e=>`<div class="log-entry ${e.type}">${e.msg}</div>`).join(''); }
+function renderLog(){
+  if(logEntries.length===0){ logList.innerHTML='<div class="log-empty">No allocations yet.</div>'; return; }
+  logList.innerHTML=logEntries.slice(0,20).map(e=>`<div class="log-entry ${e.type}">${e.msg}</div>`).join('');
+}
 
 async function runSimulation(){
   if(running) return;
@@ -1189,6 +1190,7 @@ function doReset(){
 startBtn.addEventListener('click', runSimulation);
 resetBtn.addEventListener('click', doReset);
 updateStats();
+renderLog();
 
 
 /* ══════════════════════════════════════════════════════
@@ -1223,72 +1225,6 @@ function toBinCounts(arr){
   return counts;
 }
 
-const ctx2 = document.getElementById('myChart').getContext('2d');
-const chartData = {
-  labels: bins,
-  datasets:[
-    {
-      label:'Treatment',
-      data: new Array(bins.length).fill(0),
-      backgroundColor:'rgba(167,25,48,0.52)',
-      borderColor:'rgba(167,25,48,0.9)',
-      borderWidth:1.5,
-      borderRadius:2,
-      barPercentage:1.0,
-      categoryPercentage:1.0,
-    },
-    {
-      label:'Control',
-      data: new Array(bins.length).fill(0),
-      backgroundColor:'rgba(15,32,75,0.45)',
-      borderColor:'rgba(15,32,75,0.75)',
-      borderWidth:1.5,
-      borderRadius:2,
-      barPercentage:1.0,
-      categoryPercentage:1.0,
-    }
-  ]
-};
-
-const myChart = new Chart(ctx2, {
-  type:'bar',
-  data: chartData,
-  options:{
-    responsive:true,
-    maintainAspectRatio:true,
-    animation:{ duration:480, easing:'easeOutQuart' },
-    interaction:{ mode:'index', intersect:false },
-    plugins:{
-      legend:{ display:false },
-      tooltip:{
-        backgroundColor:'#0F204B',
-        titleColor:'#fff',
-        bodyColor:'rgba(255,255,255,0.72)',
-        titleFont:{ family:"'DM Mono', monospace", size:11 },
-        bodyFont:{ family:"'DM Mono', monospace", size:11 },
-        padding:12,
-        callbacks:{
-          title: items=>`Bin: ${items[0].label}`,
-          label: item=>` ${item.dataset.label}: ${item.raw} units`,
-        }
-      }
-    },
-    scales:{
-      x:{
-        grid:{ color:'rgba(15,32,75,0.06)', drawBorder:false },
-        ticks:{ font:{family:"'DM Mono',monospace",size:9}, color:'#8B8D8E', maxRotation:45, autoSkip:true, maxTicksLimit:18 },
-        title:{ display:true, text:'COVARIATE SCORE', font:{family:"'DM Mono',monospace",size:10}, color:'#8B8D8E', padding:{top:8} }
-      },
-      y:{
-        beginAtZero:true,
-        grid:{ color:'rgba(15,32,75,0.06)', drawBorder:false },
-        ticks:{ font:{family:"'DM Mono',monospace",size:10}, color:'#8B8D8E', stepSize:5 },
-        title:{ display:true, text:'UNIT COUNT', font:{family:"'DM Mono',monospace",size:10}, color:'#8B8D8E', padding:{bottom:8} }
-      }
-    }
-  }
-});
-
 function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
 
 function shuffle(arr){
@@ -1305,14 +1241,105 @@ function splitPop(){
   return { treatment:s.slice(0,POP_N/2), control:s.slice(POP_N/2) };
 }
 
+/* ── Chart bootstrap (guarded against a failed library load) ── */
+let myChart = null;
+
+function buildChart(){
+  if(typeof Chart === 'undefined'){
+    setHistButtons(true);
+    setHistStatus(
+      'Chart library failed to load.<br>'+
+      'This page needs an internet connection to fetch Chart.js.',
+      'error'
+    );
+    const intro=document.getElementById('chartIntro');
+    intro.classList.remove('hidden');
+    intro.querySelector('.chart-intro-txt').innerHTML='Chart library unavailable —<br>check your connection and reload';
+    return false;
+  }
+
+  const ctx2 = document.getElementById('myChart').getContext('2d');
+  const chartData = {
+    labels: bins,
+    datasets:[
+      {
+        label:'Treatment',
+        data: new Array(bins.length).fill(0),
+        backgroundColor:'rgba(167,25,48,0.52)',
+        borderColor:'rgba(167,25,48,0.9)',
+        borderWidth:1.5,
+        borderRadius:2,
+        barPercentage:1.0,
+        categoryPercentage:1.0,
+      },
+      {
+        label:'Control',
+        data: new Array(bins.length).fill(0),
+        backgroundColor:'rgba(15,32,75,0.45)',
+        borderColor:'rgba(15,32,75,0.75)',
+        borderWidth:1.5,
+        borderRadius:2,
+        barPercentage:1.0,
+        categoryPercentage:1.0,
+      }
+    ]
+  };
+
+  myChart = new Chart(ctx2, {
+    type:'bar',
+    data: chartData,
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      animation:{ duration:480, easing:'easeOutQuart' },
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{
+          backgroundColor:'#0F204B',
+          titleColor:'#fff',
+          bodyColor:'rgba(255,255,255,0.72)',
+          titleFont:{ family:"'DM Mono', monospace", size:11 },
+          bodyFont:{ family:"'DM Mono', monospace", size:11 },
+          padding:12,
+          callbacks:{
+            title: items=>`Bin: ${items[0].label}`,
+            label: item=>` ${item.dataset.label}: ${item.raw} units`,
+          }
+        }
+      },
+      scales:{
+        x:{
+          stacked:false,
+          grid:{ color:'rgba(15,32,75,0.06)' },
+          border:{ display:false },
+          ticks:{ font:{family:"'DM Mono',monospace",size:9}, color:'#8B8D8E', maxRotation:45, autoSkip:true, maxTicksLimit:18 },
+          title:{ display:true, text:'COVARIATE SCORE', font:{family:"'DM Mono',monospace",size:10}, color:'#8B8D8E', padding:{top:8} }
+        },
+        y:{
+          beginAtZero:true,
+          grid:{ color:'rgba(15,32,75,0.06)' },
+          border:{ display:false },
+          ticks:{ font:{family:"'DM Mono',monospace",size:10}, color:'#8B8D8E', stepSize:5 },
+          title:{ display:true, text:'UNIT COUNT', font:{family:"'DM Mono',monospace",size:10}, color:'#8B8D8E', padding:{bottom:8} }
+        }
+      }
+    }
+  });
+  /* expose for the resize nudge in showSection */
+  window.myChart = myChart;
+  return true;
+}
+
 function setHistButtons(disabled){
   document.getElementById('btnRandom').disabled=disabled;
   document.getElementById('btnRerand').disabled=disabled;
 }
 
 function updateHistChart(t,c){
-  chartData.datasets[0].data=toBinCounts(t);
-  chartData.datasets[1].data=toBinCounts(c);
+  if(!myChart) return;
+  myChart.data.datasets[0].data=toBinCounts(t);
+  myChart.data.datasets[1].data=toBinCounts(c);
   myChart.update();
   document.getElementById('chartIntro').classList.add('hidden');
 }
@@ -1323,7 +1350,7 @@ function updateHistStats(t,c,diff){
   el.textContent=d;
   el.className='diff-value '+(diff<0.5?'good':diff<2?'neutral':'bad');
   document.getElementById('meanT').textContent=`Treatment: ${mT}`;
-  document.getElementById('meanC').textContent=`Control:   ${mC}`;
+  document.getElementById('meanC').textContent=`Control: ${mC}`;
 }
 
 function setHistStatus(html,cls=''){
@@ -1333,6 +1360,7 @@ function setHistStatus(html,cls=''){
 }
 
 function runRandom(){
+  if(!myChart){ return; }
   setHistButtons(true);
   setHistStatus('<span class="spinner-inline"></span>Allocating randomly…','info');
   setTimeout(()=>{
@@ -1350,6 +1378,7 @@ function runRandom(){
 }
 
 function runRerand(){
+  if(!myChart){ return; }
   setHistButtons(true);
   setHistStatus('<span class="spinner-inline"></span>Searching for balanced allocation…','info');
   setTimeout(()=>{
@@ -1372,6 +1401,9 @@ function runRerand(){
     setHistButtons(false);
   }, 30);
 }
+
+/* Build the chart once the page (and the Chart.js script) are ready */
+window.addEventListener('load', buildChart);
 </script>
 
 </body></html>
